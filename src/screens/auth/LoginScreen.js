@@ -12,7 +12,7 @@ import {Button, Modal} from 'react-native-paper';
 import {ScrollView} from 'react-native-gesture-handler';
 import Spinner from 'react-native-loading-spinner-overlay';
 import CountryCodePicker from '../../global/elements/countries/CountryCodePicker';
-import {useSelector} from 'react-redux';
+  import {useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import authApi from '../../provider/api/auth';
 import * as actionTypes from '../../store/actions';
@@ -32,6 +32,7 @@ function LoginScreen(props) {
   const [modalText, setModalText] = useState('');
   const [countryCode, setCountryCode] = useState('961');
   const [userData] = useState(useSelector(state => state.usr.userData));
+     console.log("token",userData.token)
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
   const Store = async value => {
@@ -49,7 +50,7 @@ function LoginScreen(props) {
 
   useEffect(() => {
     AsyncStorage.getItem('token').then(value => {
-      // console.log("eeeeeeeeeeeeeeeeee",value)
+   
       if (value === null && userData.is_verified === false) {
         props.navigation.navigate('LoginScreen'); //(Hide it once you get value from this)
       } else if (userData.is_verified === true && value !== null) {

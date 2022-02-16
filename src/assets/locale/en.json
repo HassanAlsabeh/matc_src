@@ -73,7 +73,7 @@
   "book_online_consultation": "Book Online",
   "doctor_about": "about",
   "doctor_clinics": "clinics",
-  "appointment_available_days": "available days highlighted in green",
+  "appointment_available_days": "available days highlighted in red",
   "appointment_no_available_days": "no available appointments on this day",
   "appointment_I_accept_terms": "I accepted terms of Online Consultations",
   "appointment_pick_a_time": "Pick a Time",

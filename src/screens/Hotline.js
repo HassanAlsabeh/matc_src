@@ -27,20 +27,24 @@ const Hotline = props => {
   return (
     <>
       <StatusBar hidden={true} />
-      <View style={{display: showMenu ? 'flex' : 'none'}}>
-        <Menu2
-          handleCloseMiniCart={() => setShowMenu(false)}
-          visible={showMenu}></Menu2>
-      </View>
+     
       <View style={styles.container}>
         <View style={styles.header}>
-          <IconButton
-            icon="menu"
-            color={'black'}
-            size={30}
-            style={{alignSelf: 'flex-end'}}
-            onPress={() => setShowMenu(true)}
-          />
+        <TouchableOpacity
+        style={{position: 'absolute', left: '0%', top: '3%', zIndex: 1}}
+        onPress={() => {
+      navigation.goBack()
+          // setProps(initialState);
+        }}>
+        <Icon
+          name="arrow-back"
+          type="FontAwsome"
+          color="#111"
+          size={30}
+          width={60}
+          // zIndex={2}
+        />
+      </TouchableOpacity>
           <Text style={styles.name}>How can we Help you?</Text>
         </View>
         <View style={styles.column}>
@@ -83,7 +87,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   name: {
-    marginTop:50,
+    marginTop:80,
     fontSize: 25,
     fontWeight: 'bold',
     alignSelf: 'center',

@@ -1,81 +1,240 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Dimensions,
   Text,
   View,
   StyleSheet,
   Image,
+  Modal,
   StatusBar,
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
+import GestureRecognizer from 'react-native-swipe-gestures';
 import {IconButton} from 'react-native-paper';
 import {useSelector} from 'react-redux';
 import {useNavigation} from '@react-navigation/native';
 import {Card, Button, Icon} from 'react-native-elements';
-import Menu2 from '../Menu/Menu2';
-
+import Menu from '../Menu/Menu';
+import axios from 'axios';
+import {WebView} from 'react-native-webview';
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
-const users = [
-  {
-    name: 'brynn',
-    text:'  The idea wonen structure than actual designThe idea with React Native Elements is more about componen structure than actual designThe idea with React Native Elements is more about componen structure than actual design',
-    avatar:
-      'https://images.unsplash.com/photo-1453728013993-6d66e9c9123a?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8dmlld3xlbnwwfHwwfHw%3D&w=1000&q=80',
-  },
-  {
-    name: 'thot leader',
-    text:'  The idea with React Native Elements is more about componen structure than actual design',
-    avatar:
-      'https://images.pexels.com/photos/598745/pexels-photo-598745.jpeg?crop=faces&fit=crop&h=200&w=200&auto=compress&cs=tinysrgb',
-  },
-  {
-    name: 'jsa',
-    text:'  The idea with React Native Elements is more about componen structure than actual design',
-    avatar:
-      'https://media.istockphoto.com/photos/picturesque-morning-in-plitvice-national-park-colorful-spring-scene-picture-id1093110112?k=20&m=1093110112&s=612x612&w=0&h=3OhKOpvzOSJgwThQmGhshfOnZTvMExZX2R91jNNStBY=',
-  },
-  {
-    name: 'talhaconcepts',
-    text:'  The idea with React Native Elements is more about componen structure than actual design',
-    avatar: 'https://randomuser.me/api/portraits/men/4.jpg',
-  },
-  {
-    name: 'andy vitale',
-    text:'  The idea with React Native Elements is more about componen structure than actual design',
-    avatar:
-      'https://vinusimages.co/wp-content/uploads/2018/10/EG7A2390.jpgA_.jpg',
-  },
-  {
-    name: 'katy friedson',
-    text:'  The idea with React Native Elements is more about componen structure than actual design',
-    avatar:
-      'https://images-na.ssl-images-amazon.com/images/M/MV5BMTgxMTc1MTYzM15BMl5BanBnXkFtZTgwNzI5NjMwOTE@._V1_UY256_CR16,0,172,256_AL_.jpg',
-  },
-];
+
 export default function BlogDetailsScreen() {
+  const [modelvisible, setModelvisible] = useState(false);
   const navigation = useNavigation();
   const [userData] = useState(useSelector(state => state.usr.userData));
   const [showMenu, setShowMenu] = useState(false);
+  const [news, setNews] = useState([]);
+  const [posts, setPosts] = useState([]);
+  const [swipe, setSwipe] = useState(false);
+  const [categoryId, setCategoryId] = useState('');
+  const [content, setContenet] = useState('');
+  const [title, setTitle] = useState('');
+  const [image, setImage] = useState('');
+  console.log('neeeeeeeewwwwssss', categoryId);
+  const instance = axios.create({
+    baseURL: 'https://demo.ucheed.com/matc/wp-json/wp/v2',
+    timeout: 10000,
+    headers: {
+      Authorization: `Bearer ${userData.token}`,
+    },
+  });
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const response = await instance.get('/categories');
+        console.log('News Data', response.data);
+        const BlogsData =
+          response.data &&
+          response.data.map(item => {
+            return (
+              <>
+                <TouchableOpacity
+                  onPress={() => {
+                    setCategoryId(item.id);
+                    fetchPosts(item.id);
+                  }}>
+                  <Text>{item.name}</Text>
+                </TouchableOpacity>
+                <Text
+                  style={{
+                    color: 'black',
+
+                    fontWeight: 'bold',
+                  }}>
+                  {' | '}
+                </Text>
+              </>
+            );
+          });
+
+        setNews(BlogsData);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    async function fetchPosts(categoryId) {
+      try {
+        const response = await instance.get(
+          categoryId
+            ? `/posts/?categories=${categoryId}&&per_page=10`
+            : `/posts`,
+        );
+        console.log('iddddddddddd', categoryId);
+        const Postscards =
+          response.data &&
+          response.data.map(item => {
+            return (
+              <View style={{marginHorizontal: 30}}>
+                <Card>
+                  <View
+                    style={{
+                      height: 300,
+                      borderColor: '#5bd8cc',
+                      borderWidth: 2,
+                      margin: -17,
+                      padding: 18,
+                    }}>
+                    <View
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        marginVertical: 20,
+                      }}>
+                      <Card.Title
+                        style={{marginTop: 20, fontSize: 20, width: 140}}>
+                        {item.title.rendered}
+                      </Card.Title>
+                      <Card.Image
+                        style={{padding: 20, height: 90, width: 90}}
+                        source={{uri: item.featured_image_url}}
+                      />
+                    </View>
+                    <View style={{height: 100}}>
+                      <WebView
+                        style={{
+                          backgroundColor: 'transparent',
+
+                          width: '100%',
+                          height: '120%',
+                        }}
+                        originWhitelist={['*']}
+                        textZoom={350}
+                        source={{html: `${item.excerpt.rendered}`}}
+                      />
+                    </View>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setModelvisible(true);
+                        setContenet(item.content.rendered);
+                        setTitle(item.title.rendered);
+                        setImage(item.featured_image_url);
+                      }}
+                      style={{alignItems: 'center', marginBottom: 35}}>
+                      <Text style={{color: '#df1111', marginTop: 15}}>
+                        Read More
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </Card>
+              </View>
+            );
+          });
+
+        setPosts(Postscards);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    fetchData();
+    fetchPosts(categoryId);
+  }, [userData]);
+  const checkoutModelContent = navigation => {
+    // const navigation = useNavigation();
+    return (
+      <View
+        style={
+          swipe === false
+            ? {
+                width: '100%',
+                height: '60%',
+                padding: 10,
+                borderTopLeftRadius: 30,
+                borderTopRightRadius: 30,
+                position: 'absolute',
+                backgroundColor: '#ffff',
+                bottom: 0,
+              }
+            : {
+                width: '100%',
+                height: '100%',
+                padding: 10,
+                borderTopLeftRadius: 30,
+                borderTopRightRadius: 30,
+                position: 'absolute',
+                backgroundColor: '#ffff',
+                bottom: 0,
+              }
+        }>
+          <View style={{position:"absolute",top:10,left:20}}>
+        <Icon
+          onPress={() => setModelvisible(false)}
+          name="cancel"
+          type="materialicons"
+          color="#111"
+          size={30}
+        /></View>
+        <View style={{alignItems: 'center'}}>
+          <Text style={{fontSize: 25, fontWeight: 'bold',padding:30}}>{title}</Text>
+        </View>
+
+        <Image
+          style={styles.image}
+          source={{
+            uri: `${image}`,
+          }}
+        />
+        <WebView
+          style={{
+            backgroundColor: 'transparent',
+            margin: 15,
+            width: '90%',
+          }}
+          originWhitelist={['*']}
+          textZoom={350}
+          source={{html: `${content}`}}
+        />
+      </View>
+    );
+  };
+
   return (
     <>
+      <GestureRecognizer
+        style={{flex: 1}}
+        onSwipeDown={() => setSwipe(false)}
+        onSwipeUp={() => setSwipe(true)}>
+        <Modal
+        
+          animationType="slide"
+          visible={modelvisible}
+          transparent={true}
+          onRequestClose={() => setModelvisible(false)}>
+          {checkoutModelContent(navigation)}
+        </Modal>
+      </GestureRecognizer>
       <StatusBar hidden={true} />
-      <View style={{display: showMenu ? 'flex' : 'none'}}>
-        <Menu2
-          handleCloseMiniCart={() => setShowMenu(false)}
-          visible={showMenu}></Menu2>
-      </View>
+
       <View style={styles.container}>
         <View style={styles.header}>
-          <IconButton
-            icon="menu"
-            color={'black'}
-            size={25}
-            style={{alignSelf: 'flex-end'}}
-            onPress={() => setShowMenu(true)}
-          />
+          
           <Text style={styles.name}>BLOG</Text>
+
           <View
             style={{
               display: 'flex',
@@ -86,78 +245,18 @@ export default function BlogDetailsScreen() {
               padding: 12,
               marginHorizontal: 10,
             }}>
-            <TouchableOpacity>
-              <Text>one</Text>
-            </TouchableOpacity>
-            <Text>{'|'}</Text>
-            <TouchableOpacity>
-              <Text>two</Text>
-            </TouchableOpacity>
-            <Text>{'|'}</Text>
-            <TouchableOpacity>
-              <Text>three</Text>
-            </TouchableOpacity>
-            <Text>{'|'}</Text>
-            <TouchableOpacity>
-              <Text>four</Text>
-            </TouchableOpacity>
-            <Text>{'|'}</Text>
-            <TouchableOpacity>
-              <Text>five</Text>
-            </TouchableOpacity>
-            <Text>{'|'}</Text>
-            <TouchableOpacity>
-              <Text>six</Text>
-            </TouchableOpacity>
-            <Text>{'|'}</Text>
-            <TouchableOpacity>
-              <Text>seven</Text>
-            </TouchableOpacity>
+            <ScrollView
+              showsHorizontalScrollIndicator={false}
+              horizontal={true}>
+              {news}
+            </ScrollView>
           </View>
         </View>
-        <ScrollView showsVerticalScrollIndicator={false} style={{marginBottom: '78%', marginTop: '-20%'}}>
-          <View>
-            {/* <Card> */}
 
-            {/* <Card.Divider /> */}
-            {/* {users.map((u, i) => {
-              return (
-                <View key={i} style={styles.user}>
-                  <Image
-                    style={styles.image}
-                    resizeMode="cover"
-                    source={{ uri: u.avatar }}
-                  />
-                  <Text style={styles.name}>{u.name}</Text>
-                </View>
-              );
-            })} */}
-            {/* </Card> */}
-            {/* <Card containerStyle={{ marginTop: 15 }}>
-            <Card.Title>FONTS</Card.Title>
-            <Card.Divider />
-            
-            <Text style={styles.fonts}>Normal Text</Text>
-          </Card> */}
-            {users.map((u, i) => {
-              return (
-                  <View style={{marginHorizontal:30}}>
-                <Card  >
-                    <View style={{height:300,borderColor:"#5bd8cc",borderWidth:2,margin:-17,padding:18}}> 
-                    <View style={{display:"flex",flexDirection:"row",justifyContent:"space-between",marginVertical:20}}>
-                  <Card.Title style={{marginTop:20 , fontSize:20}}>{u.name}</Card.Title>
-                  <Card.Image style={{padding: 20,height:90,width:90}} source={{uri: u.avatar}}/>
-                  </View>
-                  <Text style={{marginBottom: 10}}>
-                  {u.text}
-                  </Text>
-                  </View>
-                  
-                </Card>
-                </View>
-              );
-            })}
-          </View>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          style={{marginBottom: '78%', marginTop: '-20%'}}>
+          <View>{posts && posts}</View>
         </ScrollView>
       </View>
     </>
@@ -179,14 +278,11 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   image: {
-    width: 30,
-    height: 30,
-    marginRight: 10,
+    width: 280,
+    height: 280,
+    marginLeft: 45,
   },
-  name: {
-    fontSize: 16,
-    marginTop: 5,
-  },
+
   logo: {
     resizeMode: 'contain',
     width: windowWidth * 0.3,
@@ -194,7 +290,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   name: {
-    marginTop: 20,
+    marginTop: 50,
     fontSize: 25,
     fontWeight: 'bold',
     alignSelf: 'center',

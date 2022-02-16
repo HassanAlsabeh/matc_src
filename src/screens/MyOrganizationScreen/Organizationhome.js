@@ -72,7 +72,7 @@ const Organizationhome = props => {
             <Image style={styles.icon} source={require('../Icon-100.png')} />
             <Text style={styles.text}>HOTLINE/EMERGENCY</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.icon_container}>
+          <TouchableOpacity style={styles.icon_container}   >
             <Image style={styles.icon} source={require('../Icon-114.png')} />
             <Text style={styles.text}>SICK LEAVE</Text>
           </TouchableOpacity>

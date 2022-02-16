@@ -6,8 +6,7 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import axios from 'axios';
 import Menu2 from '../Menu/Menu2';
 import styles from './UserAppointmentsScreen.style';
-import {IconButton} from 'react-native-paper';
-
+import {Icon} from 'react-native-elements';
 const UserAppointmentsScreen = ({navigation}) => {
   const [showMenu, setShowMenu] = useState(false);
   const [userData] = useState(useSelector(state => state.usr.userData));
@@ -175,11 +174,7 @@ const UserAppointmentsScreen = ({navigation}) => {
 
   return (
     <>
-      <View style={{display: showMenu ? 'flex' : 'none'}}>
-        <Menu2
-          handleCloseMiniCart={() => setShowMenu(false)}
-          visible={showMenu}></Menu2>
-      </View>
+    
       <Spinner
         visible={spinner}
         textContent={'Fetching your appointments...'}
@@ -188,15 +183,20 @@ const UserAppointmentsScreen = ({navigation}) => {
         animation={'fade'}
       />
       <View style={styles.header}>
-        <View style={{width: '100%'}}>
-          <IconButton
-            icon="menu"
-            color={'black'}
-            size={30}
-            style={{alignSelf: 'flex-end'}}
-            onPress={() => setShowMenu(true)}
-          />
-        </View>
+      <TouchableOpacity
+        style={{position: 'absolute', left: '0%', top: '5%', zIndex: 1}}
+        onPress={() => {
+          navigation.goBack(); // setProps(initialState);
+        }}>
+        <Icon
+          name="arrow-back"
+          type="FontAwsome"
+          color="#111"
+          size={30}
+          width={60}
+          // zIndex={2}
+        />
+      </TouchableOpacity>
         <Image style={styles.logo} source={require('../MATC-colored.png')} />
 
         <Text style={styles.name}>My Appointments</Text>

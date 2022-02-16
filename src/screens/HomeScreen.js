@@ -23,19 +23,13 @@ const HomeScreen = props => {
   const toggleData = useSelector(state => state.togg.toggleData);
 
   const [userData] = useState(useSelector(state => state.usr.userData));
-  const [data,setData]=useState({})
-  console.log('data', toggleData&& toggleData);
+  const [data, setData] = useState({});
+  console.log('data', toggleData && toggleData);
   // const [toggleData] = useState(useSelector(state => state.togg.toggleData));
   const [showMenu, setShowMenu] = useState(false);
 
-
-
- 
-
-
   useEffect(() => {
     verify();
-
   }, []);
 
   const verify = async () => {
@@ -48,12 +42,8 @@ const HomeScreen = props => {
     });
     const response = await instance1.get(`/patients/self`).then(res => {
       setData(res.data.data);
-      
     });
   };
-
-
-
 
   return (
     <>
@@ -65,66 +55,72 @@ const HomeScreen = props => {
       </View>
       {data.organization && data.organization && toggleData && toggleData ? (
         <View style={styles.container}>
-        <View style={styles.header}>
-          <IconButton
-            icon="menu"
-            color={'black'}
-            size={25}
-            style={{alignSelf: 'flex-end'}}
-            onPress={() => {verify();setShowMenu(true)}}
-          />
-          {/* <Image style={styles.logo} source={require('../MATC-colored.png')} /> */}
-          <Text style={styles.name}>
-            {userData.organization&& userData.organization.name.toUpperCase()}
-          </Text>
-          <Text style={styles.welcome}>How can we take care of you?</Text>
-        </View>
-        <View style={styles.row}>
-          <TouchableOpacity
-            style={styles.icon_container}
-            onPress={() => navigation.navigate('OrganizationBooking')}>
-            <Image style={styles.icon} source={require('./Icon-128.png')} />
-            <Text style={styles.text}>SCHEDULE AN APPOINTMENT</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.icon_container}
-            onPress={() => navigation.navigate('UserAppointmentsScreen')}>
-            <Image
-              style={[
-                styles.icon,
-                {height: windowHeight / 14, marginBottom: 5},
-              ]}
-              source={require('./Icon-196-2.png')}
+          <View style={styles.header}>
+            <IconButton
+              icon="menu"
+              color={'black'}
+              size={25}
+              style={{alignSelf: 'flex-end'}}
+              onPress={() => {
+                verify();
+                setShowMenu(true);
+              }}
             />
-            {/* <IconButton icon="message-plus" size={40} /> */}
-            <Text style={styles.text}>MY APPOINTMENTS</Text>
-          </TouchableOpacity>
+          <Image style={styles.logo} source={require('./MATC-colored.png')} />
+            <Text style={styles.name}>
+              {userData.organization &&
+                userData.organization.name.toUpperCase()}
+            </Text>
+            <Text style={styles.welcome}>How can we take care of you?</Text>
+          </View>
+          <View style={styles.row}>
+            <TouchableOpacity
+              style={styles.icon_container}
+              onPress={() => navigation.navigate('OrganizationBooking')}>
+              <Image style={styles.icon} source={require('./Icon-128.png')} />
+              <Text style={styles.text}>SCHEDULE AN APPOINTMENT</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.icon_container}
+              onPress={() => navigation.navigate('UserAppointmentsScreen')}>
+              <Image
+                style={[
+                  styles.icon,
+                  {height: windowHeight / 14, marginBottom: 5},
+                ]}
+                source={require('./Icon-196-2.png')}
+              />
+              {/* <IconButton icon="message-plus" size={40} /> */}
+              <Text style={styles.text}>MY APPOINTMENTS</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.row}>
+            <TouchableOpacity
+              style={styles.icon_container}
+              onPress={() => navigation.navigate('Hotline')}>
+              <Image style={styles.icon} source={require('./Icon-100.png')} />
+              <Text style={styles.text}>HOTLINE/EMERGENCY</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.icon_container}
+              onPress={() => navigation.navigate('SickLeave')}>
+              <Image style={styles.icon} source={require('./Icon-114.png')} />
+              <Text style={styles.text}>SICK LEAVE</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.row}>
+            <TouchableOpacity
+              style={styles.icon_container}
+              onPress={() => navigation.navigate('BlogDetailsScreen')}>
+              <Image style={styles.icon} source={require('./Icon-100.png')} />
+              <Text style={styles.text}>BLOGS</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.icon_container}>
+              <Image style={styles.icon} source={require('./Icon-114.png')} />
+              <Text style={styles.text}>HELP/SUPPORT</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-        <View style={styles.row}>
-          <TouchableOpacity
-            style={styles.icon_container}
-            onPress={() => navigation.navigate('Hotline')}>
-            <Image style={styles.icon} source={require('./Icon-100.png')} />
-            <Text style={styles.text}>HOTLINE/EMERGENCY</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.icon_container}>
-            <Image style={styles.icon} source={require('./Icon-114.png')} />
-            <Text style={styles.text}>SICK LEAVE</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.row}>
-          <TouchableOpacity
-            style={styles.icon_container}
-            onPress={() => navigation.navigate('BlogDetailsScreen')}>
-            <Image style={styles.icon} source={require('./Icon-100.png')} />
-            <Text style={styles.text}>BLOGS</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.icon_container}>
-            <Image style={styles.icon} source={require('./Icon-114.png')} />
-            <Text style={styles.text}>HELP/SUPPORT</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
       ) : (
         <View style={styles.container}>
           <View style={styles.header}>
@@ -133,7 +129,10 @@ const HomeScreen = props => {
               color={'black'}
               size={30}
               style={{alignSelf: 'flex-end'}}
-              onPress={() => {verify();setShowMenu(true)}}
+              onPress={() => {
+                verify();
+                setShowMenu(true);
+              }}
             />
             <View
               style={{

@@ -17,7 +17,7 @@ export function ChatListScreen({ navigation, route }) {
   const [loading, setLoading] = useState(true);
   const { channels, updateChannels } = useApp();
   const channelPaginator = useRef();
-console.log(getToken())
+console.log("ewwwwww",getToken())
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (

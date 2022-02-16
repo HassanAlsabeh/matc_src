@@ -20,7 +20,7 @@ import {Button, Text} from 'react-native-paper';
 import {useNavigation} from '@react-navigation/native';
 import TimeItem from '../../components/TimeItem';
 import {TouchableOpacity} from 'react-native';
-
+import {Icon} from 'react-native-elements';
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
 
@@ -41,23 +41,20 @@ const OrganizationBooking = props => {
   const [visible, setVisible] = useState(false);
   const [modalText, setModalText] = useState('');
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [gender, setGender] = useState('M');
+  const [location, setlocation] = useState('');
+  // console.log('location', location);
   const [dr, setDr] = useState('');
   const [organization, setOrganization] = useState('');
   const [aboutorganization, setAboutorganization] = useState('');
   const [drimage, setDrimage] = useState('');
-  // console.log("times end",timeends)
-  const [status, setStatus] = useState([
-    {label: 'Online', value: 'Online'},
-    {label: 'On Site', value: 'On Site', disabled: true},
-    {label: 'Beirut', value: 'Beirut', parent: 'On Site'},
-    {label: 'Hadath', value: 'Hadath', parent: 'On Site'},
-    {label: 'Aley', value: 'Aley', parent: 'On Site'},
-  ]);
+  const [month, setMonth] = useState('');
+
+  const [locations, setLocations] = useState([]);
+  const [status, setStatus] = useState([]);
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
   const currentmonth = new Date().getMonth() + 1;
-
+  const [loading, setLoading] = useState(false);
   const instance = axios.create({
     baseURL: 'https://host.ucheed.com/matc/api/',
     timeout: 10000,
@@ -77,10 +74,21 @@ const OrganizationBooking = props => {
   useEffect(() => {
     let thisMonth = new Date().toISOString().split('T')[0];
     thisMonth = thisMonth.substring(0, thisMonth.length - 3);
-
+    setMonth(thisMonth);
+    console.log('month', thisMonth);
     monthChangeHandler(thisMonth);
+  }, [location]);
+  useEffect(() => {
+    const fetchOrganizatio = () => {
+      instance1
+        .get(`/organizations/${userData.organization.id}`)
+        .then(response => {
+          setLocations(response.data.data.locations);
+          console.log('ttttttttttt', response.data.data.locations);
+        });
+    };
+    fetchOrganizatio();
   }, []);
-
   useEffect(() => {
     if (selected) {
       const keys = Object.keys(selected);
@@ -90,6 +98,7 @@ const OrganizationBooking = props => {
           month: keys[0].slice(5, 7),
           year: keys[0].slice(0, 4),
           day: keys[0].slice(8, 10),
+          location_id: location === '' || 'null' ? null : location,
           secondary_id: userData.organization.id,
         })
         .then(response => {
@@ -108,38 +117,33 @@ const OrganizationBooking = props => {
               };
             });
             console.log('times', times);
-            console.log('response', response.data);
+            // console.log('response', response.data);
             setAvailableTimes(times);
           }
         });
     }
   }, [selected]);
-  
+
   const [datetosend, setDatetosend] = useState('');
-  console.log('thismonth', datetosend);
+  // console.log('thismonth', datetosend);
 
   const monthChangeHandler = monthDate => {
-    setDatetosend(
-      currentmonth === monthDate.slice(5, 7) ? '' : monthDate.slice(5, 7),
-    );
+    // setDatetosend(
+    //   currentmonth === monthDate.slice(5, 7) ? '' : monthDate.slice(5, 7),
+    // );
+
     // console.log('thismonth',monthDate.slice(0, 4));
     instance1
 
-      .post(
-        'timings',
-        datetosend
-          ? {
-              month: datetosend,
-              year: monthDate.slice(0, 4),
-              secondary_id: userData.organization.id,
-            }
-          : {
-              secondary_id: userData.organization.id,
-            },
-      )
+      .post('timings', {
+        month: monthDate.slice(5, 7),
+        year: monthDate.slice(0, 4),
+        secondary_id: userData.organization.id,
+        location_id: location == 'null' ? null : location,
+      })
       .then(res => {
         const dates = {};
-        console.log('monthh dataattata', res.data.data[2]);
+        // console.log('monthh dataattata', res.data.data[2]);
         res.data.data.forEach(date => {
           if (date.available_timings == 0) {
             setAvailableTimes([]);
@@ -241,6 +245,15 @@ const OrganizationBooking = props => {
                 }
           }>
           <View>
+            <View style={{position: 'absolute', top: 10, left: 20}}>
+              <Icon
+                onPress={() => setModelvisible(false)}
+                name="cancel"
+                type="materialicons"
+                color="#111"
+                size={30}
+              />
+            </View>
             <View
               style={{
                 alignItems: 'flex-start',
@@ -348,12 +361,32 @@ const OrganizationBooking = props => {
           <Text style={styles.name}>{userData.organization.name}</Text>
 
           <DropDownPicker
+            loading={loading}
             open={pickerOpen}
-            value={gender}
-            items={status}
+            searchable={true}
+            searchTextInputProps={{
+              maxLength: 25,
+            }}
+            value={location}
+            items={[
+              {label: 'Online', value: 'null'},
+              {label: 'Onsite', value: 'onsite', disabled: true},
+              ...locations.map(l => {
+                return {label: l.name, value: l.id, parent: 'onsite'};
+              }),
+            ]}
+            selectedItemContainerStyle={{
+              backgroundColor: 'grey',
+            }}
+            selectedItemLabelStyle={{
+              fontWeight: 'bold',
+            }}
+            translation={{
+              PLACEHOLDER: 'Select Location',
+            }}
             stickyHeader={true}
             setOpen={setPickerOpen}
-            setValue={setGender}
+            setValue={setlocation}
             setItems={setStatus}
             style={{
               marginVertical: 10,
@@ -361,6 +394,10 @@ const OrganizationBooking = props => {
               border: 'none',
             }}
             listMode="SCROLLVIEW"
+            // onOpen={() => monthChangeHandler(month)}
+            //  closeAfterSelecting={() => monthChangeHandler(month)}
+            // onValueChange={() => monthChangeHandler(month)}
+            // onChangeValue={() => monthChangeHandler(month)}
           />
           <View style={styles.calendarWrapper}>
             <Calendar
