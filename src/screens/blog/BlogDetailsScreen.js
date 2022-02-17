@@ -17,6 +17,7 @@ import {useNavigation} from '@react-navigation/native';
 import {Card, Button, Icon} from 'react-native-elements';
 import Menu from '../Menu/Menu';
 import axios from 'axios';
+import Spinner from 'react-native-loading-spinner-overlay';
 import {WebView} from 'react-native-webview';
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -24,6 +25,7 @@ const windowHeight = Dimensions.get('window').height;
 export default function BlogDetailsScreen() {
   const [modelvisible, setModelvisible] = useState(false);
   const navigation = useNavigation();
+  const [spinner, setSpinner] = useState(true);
   const [userData] = useState(useSelector(state => state.usr.userData));
   const [showMenu, setShowMenu] = useState(false);
   const [news, setNews] = useState([]);
@@ -84,6 +86,7 @@ export default function BlogDetailsScreen() {
             ? `/posts/?categories=${categoryId}&&per_page=10`
             : `/posts`,
         );
+        setSpinner(false);
         console.log('iddddddddddd', categoryId);
         const Postscards =
           response.data &&
@@ -181,16 +184,19 @@ export default function BlogDetailsScreen() {
                 bottom: 0,
               }
         }>
-          <View style={{position:"absolute",top:10,left:20}}>
-        <Icon
-          onPress={() => setModelvisible(false)}
-          name="cancel"
-          type="materialicons"
-          color="#111"
-          size={30}
-        /></View>
+        <View style={{position: 'absolute', top: 10, left: 20}}>
+          <Icon
+            onPress={() => setModelvisible(false)}
+            name="cancel"
+            type="materialicons"
+            color="#111"
+            size={30}
+          />
+        </View>
         <View style={{alignItems: 'center'}}>
-          <Text style={{fontSize: 25, fontWeight: 'bold',padding:30}}>{title}</Text>
+          <Text style={{fontSize: 25, fontWeight: 'bold', padding: 30}}>
+            {title}
+          </Text>
         </View>
 
         <Image
@@ -215,24 +221,8 @@ export default function BlogDetailsScreen() {
 
   return (
     <>
-      <GestureRecognizer
-        style={{flex: 1}}
-        onSwipeDown={() => setSwipe(false)}
-        onSwipeUp={() => setSwipe(true)}>
-        <Modal
-        
-          animationType="slide"
-          visible={modelvisible}
-          transparent={true}
-          onRequestClose={() => setModelvisible(false)}>
-          {checkoutModelContent(navigation)}
-        </Modal>
-      </GestureRecognizer>
-      <StatusBar hidden={true} />
-
       <View style={styles.container}>
         <View style={styles.header}>
-          
           <Text style={styles.name}>BLOG</Text>
 
           <View
@@ -259,6 +249,26 @@ export default function BlogDetailsScreen() {
           <View>{posts && posts}</View>
         </ScrollView>
       </View>
+      <GestureRecognizer
+        style={{flex: 1}}
+        onSwipeDown={() => setSwipe(false)}
+        onSwipeUp={() => setSwipe(true)}>
+        <Modal
+          animationType="slide"
+          visible={modelvisible}
+          transparent={true}
+          onRequestClose={() => setModelvisible(false)}>
+          {checkoutModelContent(navigation)}
+        </Modal>
+      </GestureRecognizer>
+      <Spinner
+        visible={spinner}
+        textContent={'Fetching News'}
+        color={'#5bd8cc'}
+        overlayColor={'#fff'}
+        animation={'slide'}
+      />
+      <StatusBar hidden={true} />
     </>
   );
 }

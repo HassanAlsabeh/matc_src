@@ -364,10 +364,7 @@ const HomeScreen = ({IDs, navigation}) => {
       return (
         <View>
           <Text>Image loaded:</Text>
-          <Image
-            source={{ uri: document }}
-            style={{ height: 75, width: 75 }}
-          />
+          <Image source={{uri: document}} style={{height: 75, width: 75}} />
         </View>
       );
     }
@@ -448,7 +445,7 @@ const HomeScreen = ({IDs, navigation}) => {
                 style={styles.messageSendView}
                 onPress={() => {
                   sendMessage();
-                  renderChatFooter()
+                  renderChatFooter();
                 }}>
                 <Icon name="send" type="material" />
               </TouchableOpacity>

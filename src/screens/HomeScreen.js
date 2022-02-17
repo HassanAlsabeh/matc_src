@@ -14,6 +14,7 @@ import {useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import Menu from './Menu/Menu';
+import Spinner from 'react-native-loading-spinner-overlay';
 import {Icon} from 'react-native-elements';
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -21,7 +22,7 @@ const windowHeight = Dimensions.get('window').height;
 const HomeScreen = props => {
   const navigation = useNavigation();
   const toggleData = useSelector(state => state.togg.toggleData);
-
+  const [spinner, setSpinner] = useState(true);
   const [userData] = useState(useSelector(state => state.usr.userData));
   const [data, setData] = useState({});
   console.log('data', toggleData && toggleData);
@@ -42,12 +43,20 @@ const HomeScreen = props => {
     });
     const response = await instance1.get(`/patients/self`).then(res => {
       setData(res.data.data);
+      setSpinner(false);
     });
   };
 
   return (
     <>
       <StatusBar hidden={true} />
+      <Spinner
+        visible={spinner}
+        textContent={'Logging in...'}
+        color={'#5bd8cc'}
+        overlayColor={'#fff'}
+        animation={'fade'}
+      />
       <View style={{display: showMenu ? 'flex' : 'none'}}>
         <Menu
           handleCloseMiniCart={() => setShowMenu(false)}
@@ -66,7 +75,7 @@ const HomeScreen = props => {
                 setShowMenu(true);
               }}
             />
-          <Image style={styles.logo} source={require('./MATC-colored.png')} />
+            <Image style={styles.logo} source={require('./MATC-colored.png')} />
             <Text style={styles.name}>
               {userData.organization &&
                 userData.organization.name.toUpperCase()}

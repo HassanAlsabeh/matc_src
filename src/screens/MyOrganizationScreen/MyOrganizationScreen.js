@@ -4,11 +4,13 @@ import {useSelector} from 'react-redux';
 import DropDownPicker from 'react-native-dropdown-picker';
 import GestureRecognizer from 'react-native-swipe-gestures';
 import {WebView} from 'react-native-webview';
+
 import axios from 'axios';
 import {
   Dimensions,
   Image,
   StyleSheet,
+  ActivityIndicator,
   View,
   Modal,
   ScrollView,
@@ -42,6 +44,7 @@ const OrganizationBooking = props => {
   const [modalText, setModalText] = useState('');
   const [pickerOpen, setPickerOpen] = useState(false);
   const [location, setlocation] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   // console.log('location', location);
   const [dr, setDr] = useState('');
   const [organization, setOrganization] = useState('');
@@ -54,7 +57,7 @@ const OrganizationBooking = props => {
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
   const currentmonth = new Date().getMonth() + 1;
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(null);
   const instance = axios.create({
     baseURL: 'https://host.ucheed.com/matc/api/',
     timeout: 10000,
@@ -62,6 +65,9 @@ const OrganizationBooking = props => {
       Token: userData.token,
     },
   });
+  const toggleLoading = () => {
+    setIsLoading(!isLoading);
+  };
   const instance1 = axios.create({
     baseURL: 'https://demo.ucheed.com/matc/wp-json/ucheed-json/v1',
     timeout: 10000,
@@ -77,7 +83,11 @@ const OrganizationBooking = props => {
     setMonth(thisMonth);
     console.log('month', thisMonth);
     monthChangeHandler(thisMonth);
+    toggleLoading();
   }, [location]);
+  useEffect(() => {
+    setIsLoading(true);
+  }, []);
   useEffect(() => {
     const fetchOrganizatio = () => {
       instance1
@@ -98,7 +108,7 @@ const OrganizationBooking = props => {
           month: keys[0].slice(5, 7),
           year: keys[0].slice(0, 4),
           day: keys[0].slice(8, 10),
-          location_id: location === '' || 'null' ? null : location,
+          location_id: location === ('' || 'null') ? null : location,
           secondary_id: userData.organization.id,
         })
         .then(response => {
@@ -122,7 +132,7 @@ const OrganizationBooking = props => {
           }
         });
     }
-  }, [selected]);
+  }, [selected, location]);
 
   const [datetosend, setDatetosend] = useState('');
   // console.log('thismonth', datetosend);
@@ -139,14 +149,18 @@ const OrganizationBooking = props => {
         month: monthDate.slice(5, 7),
         year: monthDate.slice(0, 4),
         secondary_id: userData.organization.id,
-        location_id: location == 'null' ? null : location,
+        location_id: location === ('' || 'null') ? null : location,
       })
       .then(res => {
         const dates = {};
+        // toggleLoading();
+        setIsLoading(false);
         // console.log('monthh dataattata', res.data.data[2]);
         res.data.data.forEach(date => {
           if (date.available_timings == 0) {
             setAvailableTimes([]);
+            // toggleLoading()
+
             // setTime('');
             // setTimeId('');
           } else {
@@ -155,6 +169,7 @@ const OrganizationBooking = props => {
             setAvailableTimes([]);
             setTime('');
             setTimeId('');
+            // toggleLoading()
           }
         });
         // console.log(item.date)
@@ -347,7 +362,21 @@ const OrganizationBooking = props => {
           {checkoutModelContent(navigation)}
         </Modal>
       </GestureRecognizer>
-
+      <TouchableOpacity
+        style={{position: 'absolute', left: '0%', top: '3%', zIndex: 1}}
+        onPress={() => {
+          navigation.goBack();
+          // setProps(initialState);
+        }}>
+        <Icon
+          name="arrow-back"
+          type="FontAwsome"
+          color="#111"
+          size={30}
+          width={60}
+          // zIndex={2}
+        />
+      </TouchableOpacity>
       <View style={{backgroundColor: '#eeeeee', flex: 1}}>
         <View style={styles.imageContainer}>
           <Image
@@ -394,11 +423,14 @@ const OrganizationBooking = props => {
               border: 'none',
             }}
             listMode="SCROLLVIEW"
-            // onOpen={() => monthChangeHandler(month)}
+            // onOpen={toggleLoading}
             //  closeAfterSelecting={() => monthChangeHandler(month)}
-            // onValueChange={() => monthChangeHandler(month)}
-            // onChangeValue={() => monthChangeHandler(month)}
+            // onValueChange={toggleLoading}
+            // onChangeValue={toggleLoading}
           />
+          <View style={{marginBottom: 10}}>
+            {isLoading && <ActivityIndicator size="large" color="#5bd8cc" />}
+          </View>
           <View style={styles.calendarWrapper}>
             <Calendar
               theme={{
